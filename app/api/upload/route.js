@@ -1,7 +1,7 @@
 // pages/api/upload/route.ts
 import { NextResponse } from "next/server";
 import { connectToDb } from "../../../lib/mongodb"; // Your MongoDB connection utility
-import { Zip } from "../../../models/zip"; // Your Zip model
+import { Download } from "../../../models/download"; // Your download model
 import { v2 as cloudinary } from "cloudinary";
 
 export async function POST(req) {
@@ -15,10 +15,7 @@ export async function POST(req) {
 
         let fileName = title;
 
-        // Ensure uploaded file name has .zip extension
-        if (!fileName.toLowerCase().endsWith(".zip")) {
-            fileName += ".zip-sss";
-        }
+
 
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
@@ -32,7 +29,7 @@ export async function POST(req) {
 
         const uploadResponse = await new Promise((resolve, reject) => {
             cloudinary.uploader.upload_stream(
-                { resource_type: "raw", public_id: `zips/${fileName}`, folder: 'zips', },
+                { resource_type: "raw", public_id: `downloads/${fileName}`, folder: 'downloads', },
                 (error, result) => {
                     if (error) reject(error);
                     else resolve(result);
@@ -40,21 +37,21 @@ export async function POST(req) {
             ).end(buffer);
         });
 
-        // Connect to MongoDB and save the zip data
+        // Connect to MongoDB and save the download data
         await connectToDb(); // Ensure this method connects to your MongoDB
-        const newZip = new Zip({
-            title: title, // Save the zip title
+        const newDownload = new Download({
+            title: title, // Save the download title
             url: uploadResponse.secure_url, // Save the Cloudinary URL
         });
 
-        await newZip.save(); // Save zip document in MongoDB
+        await newDownload.save(); // Save download document in MongoDB
 
-        // Return success response with zip URL
+        // Return success response with download URL
         return NextResponse.json({
-            message: "Zip uploaded and saved successfully",
+            message: "Download uploaded and saved successfully",
             data: {
-                title: newZip.title,
-                url: newZip.url,
+                title: newDownload.title,
+                url: newDownload.url,
             },
         });
 

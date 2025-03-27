@@ -7,16 +7,16 @@ export default function Home() {
   const [title, setTitle] = useState("");
   const [uploading, setUploading] = useState(false);
 
-  // const [zipURL, setZipURL] = useState("");
-  const [zipList, setZipList] = useState([]);
+  // const [downloadURL, setDownloadURL] = useState("");
+  const [downloadList, setDownloadList] = useState([]);
 
-  const fetchZips = async () => {
+  const fetchDownloads = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/zips`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/downloads`);
       const data = await response.json();
-      setZipList(data || []);
+      setDownloadList(data || []);
     } catch (error) {
-      console.error('Error fetching zips:', error);
+      console.error('Error fetching downloads:', error);
     }
   };
 
@@ -38,11 +38,11 @@ export default function Home() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
-      // setZipURL(data.data.url);
+      // setDownloadURL(data.data.url);
       alert("Upload Successful!");
 
       // Fetch the latest uploaded files from API
-      fetchZips();
+      fetchDownloads();
 
       // Reset input fields
       setFile(null);
@@ -55,15 +55,15 @@ export default function Home() {
     }
   };
 
-  // Fetch all uploaded zips
+  // Fetch all uploaded downloads
   useEffect(() => {
-    fetchZips();
+    fetchDownloads();
   }, []);
 
 
   return (
     <div>
-      <h1>Upload and Download Zips</h1>
+      <h1>Upload and Download</h1>
       <div style={{ display: "flex", flexDirection: "column", width: "90vw" }}>
         <label>
           File Title : &nbsp;
@@ -79,23 +79,23 @@ export default function Home() {
         <br />
         <label>
           Choose Your File (Max 10MB): &nbsp;
-          <input type="file" accept=".zip" onChange={(e) => setFile(e.target.files?.[0])} />
+          <input type="file" accept=".zip, .png, .mp4, .pdf, .jpg, .jpeg" onChange={(e) => setFile(e.target.files?.[0])} />
         </label>
         <br />
         <button onClick={handleUpload} disabled={uploading} style={{ border: "1px solid gray" }}>
-          {uploading ? "Uploading..." : "Upload Zip"}
+          {uploading ? "Uploading..." : "Upload"}
         </button>
       </div>
 
-      <h2 style={{ marginBottom: "5px" }}>Uploaded Zips:</h2>
-      {zipList.length === 0 ? (
-        <p>No zips uploaded yet.</p>
+      <h2 style={{ marginBottom: "5px" }}>Uploaded Files:</h2>
+      {downloadList.length === 0 ? (
+        <p>No files uploaded yet.</p>
       ) : (
         <ul style={{ paddingLeft: '0px' }}>
-          {zipList.slice().reverse().map((zip, index) => (
+          {downloadList.slice().reverse().map((download, index) => (
             <li key={index} style={{ listStyle: "none", marginBottom: "5px" }}>
-              <h3>Title: <span style={{ color: "var(--foreground-secondary" }}>{zip.title}</span></h3>
-              <a href={zip.url} download>⇓ Download Zip ⇓</a>
+              <h3>Title: <span style={{ color: "var(--foreground-secondary" }}>{download.title}</span></h3>
+              <a href={download.url} download>⇓ Download⇓</a>
             </li>
           ))}
         </ul>
