@@ -32,13 +32,20 @@ export async function POST(req) {
 
         const uploadResponse = await new Promise((resolve, reject) => {
             cloudinary.uploader.upload_stream(
-                { resource_type: "raw", public_id: `downloads/${fileName}`, folder: 'downloads', },
+                {
+                    resource_type: "raw",
+                    public_id: `downloads/${fileName}`,
+                    folder: 'downloads',
+                    flags: "attachment", // Ensures file is downloadable
+                    type: "upload", // Ensures it's publicly accessible
+                },
                 (error, result) => {
                     if (error) reject(error);
                     else resolve(result);
                 }
             ).end(buffer);
         });
+
 
         // Connect to MongoDB and save the download data
         await connectToDb(); // Ensure this method connects to your MongoDB
