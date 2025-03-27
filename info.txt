@@ -1,0 +1,2 @@
+MongoDB ACC = {kbtjnceqsp}
+Cloudinary ACC = {kbtjnceqsp}
