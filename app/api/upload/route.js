@@ -13,7 +13,10 @@ export async function POST(req) {
         if (!file) return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
         if (!title) return NextResponse.json({ error: "No title provided" }, { status: 400 });
 
-        let fileName = title;
+        const originalFileName = file.name;
+        const fileExtension = originalFileName.split('.').pop(); // Get the file extension
+        const fileName = `${title}.${fileExtension}`; // Ensure the title includes the extension
+
 
 
 
