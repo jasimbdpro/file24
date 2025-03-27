@@ -62,7 +62,9 @@ export default function Home() {
 
 
   return (
-    <div>
+    <div
+      style={{ marginLeft: "5px" }}
+    >
       <h1>Upload and Download</h1>
       <div style={{ display: "flex", flexDirection: "column", width: "90vw" }}>
         <label>
@@ -94,8 +96,8 @@ export default function Home() {
         <ul style={{ paddingLeft: '0px' }}>
           {downloadList.slice().reverse().map((download, index) => (
             <li key={index} style={{ listStyle: "none", marginBottom: "5px" }}>
-              <h3>Title: <span style={{ color: "var(--foreground-secondary" }}>{download.title}</span></h3>
-              <a href={download.url} download>⇓ Download⇓</a>
+              <h3>Title: {download.title}</h3>
+              <a style={{ color: "var(--foreground-secondary" }} href={download.url} download>⇓ Download⇓</a>
             </li>
           ))}
         </ul>
