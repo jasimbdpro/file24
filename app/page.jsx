@@ -97,7 +97,7 @@ export default function Home() {
           {downloadList.slice().reverse().map((download, index) => (
             <li key={index} style={{ listStyle: "none", marginBottom: "5px" }}>
               <h3>Title: {download.title}</h3>
-              <a style={{ color: "var(--foreground-secondary" }} href={download.url} download>⇓ Download⇓</a>
+              <a target="_blank" style={{ color: "var(--foreground-secondary" }} href={download.url} download>⇓ Download⇓</a>
             </li>
           ))}
         </ul>
