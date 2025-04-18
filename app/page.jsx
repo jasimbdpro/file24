@@ -55,6 +55,35 @@ export default function Home() {
     }
   };
 
+  const handleDelete = async (id) => {
+    if (!id) return alert("File ID is missing!");
+
+    const confirmDelete = confirm("Are you sure you want to delete this file?");
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch(`/api/delete-file?id=${id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error("Delete failed:", data.error);
+        alert(`Delete failed: ${data.error}`);
+        return;
+      }
+
+      alert("File deleted successfully!");
+      fetchDownloads(); // refresh after delete
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      alert("Something went wrong while deleting the file.");
+    }
+  };
+
+
+
   // Fetch all uploaded downloads
   useEffect(() => {
     fetchDownloads();
@@ -97,7 +126,13 @@ export default function Home() {
           {downloadList.slice().reverse().map((download, index) => (
             <li key={index} style={{ listStyle: "none", marginBottom: "5px" }}>
               <h3>Title: {download.title}</h3>
-              <a target="_blank" style={{ color: "var(--foreground-secondary" }} href={download.url} download>⇓ Download⇓</a>
+              <div>
+                <a target="_blank" style={{ padding: "1px 4px", color: "var(--foreground-secondary" }} href={download.url} download>⇓ Download⇓</a>
+                <button onClick={() => handleDelete(download._id)} style={{ marginLeft: "10px", padding: "1px 4px", color: "var(--foreground-secondary" }}>
+                  Delete
+                </button>
+
+              </div>
             </li>
           ))}
         </ul>
