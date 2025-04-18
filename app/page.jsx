@@ -129,7 +129,7 @@ export default function Home() {
               <div>
                 <a target="_blank" style={{ padding: "1px 4px", color: "var(--foreground-secondary" }} href={download.url} download>⇓ Download⇓</a>
                 <button onClick={() => handleDelete(download._id)} style={{ marginLeft: "10px", padding: "1px 4px", color: "var(--foreground-secondary" }}>
-                  Delete
+                  Del
                 </button>
 
               </div>
