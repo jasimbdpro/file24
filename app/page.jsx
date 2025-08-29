@@ -6,7 +6,7 @@ import ConditionInputWindow from './condition-text-box';
 export default function Home() {
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
-  const [actionHandler, setActionHandler] = useState(() => () => {}); // dynamic action
+  const [actionHandler, setActionHandler] = useState(() => () => { }); // dynamic action
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -98,15 +98,32 @@ export default function Home() {
   return (
     <div style={{ marginLeft: "5px" }}>
       {/* Modal */}
+
       {modalOpen && (
-        <ConditionInputWindow
-          onClose={() => setModalOpen(false)}
-          onAction={(password) => {
-            actionHandler(password);
-            setModalOpen(false);
-          }}
-        />
+        <div
+          style={
+            {
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              backgroundColor: "gray",
+              padding: "20px",
+              border: "1px solid black"
+            }
+          }
+        >
+          <ConditionInputWindow
+
+            onClose={() => setModalOpen(false)}
+            onAction={(password) => {
+              actionHandler(password);
+              setModalOpen(false);
+            }}
+          />
+        </div>
       )}
+
 
       <h1>Upload and Download</h1>
 
@@ -128,7 +145,11 @@ export default function Home() {
           <input type="file" accept=".zip, .png, .mp4, .pdf, .jpg, .jpeg" onChange={(e) => setFile(e.target.files?.[0])} />
         </label>
         <br />
-        <button onClick={() => openModalWithHandler(handleUpload)}>
+        <button onClick={() => {
+          if (file && title) {
+            openModalWithHandler(handleUpload)
+          }
+        }}>
           {uploading ? "Uploading..." : "Upload"}
         </button>
       </div>
