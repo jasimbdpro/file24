@@ -1,15 +1,19 @@
 "use client";
 import { useState, useEffect } from 'react';
 import './globals.css';
+import ConditionInputWindow from './condition-text-box';
 
 export default function Home() {
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [actionHandler, setActionHandler] = useState(() => () => {}); // dynamic action
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
   const [uploading, setUploading] = useState(false);
-
-  // const [downloadURL, setDownloadURL] = useState("");
   const [downloadList, setDownloadList] = useState([]);
+  const [selectedFileId, setSelectedFileId] = useState(null); // for delete action
 
+  // Fetch all uploaded downloads
   const fetchDownloads = async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/downloads`);
@@ -20,9 +24,14 @@ export default function Home() {
     }
   };
 
+  useEffect(() => {
+    fetchDownloads();
+  }, []);
+
   // Handle file upload
-  const handleUpload = async () => {
+  const handleUpload = async (password) => {
     if (!file || !title) return alert("Please select a file and enter a title");
+    if (password !== process.env.NEXT_PUBLIC_CONDITION_TEXT) return alert("Incorrect password for upload!"); // simple password check
 
     setUploading(true);
     const formData = new FormData();
@@ -38,13 +47,8 @@ export default function Home() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
-      // setDownloadURL(data.data.url);
       alert("Upload Successful!");
-
-      // Fetch the latest uploaded files from API
       fetchDownloads();
-
-      // Reset input fields
       setFile(null);
       setTitle("");
     } catch (error) {
@@ -55,14 +59,16 @@ export default function Home() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!id) return alert("File ID is missing!");
+  // Handle file delete
+  const handleDelete = async (password) => {
+    if (!selectedFileId) return alert("File ID is missing!");
+    if (password !== process.env.NEXT_PUBLIC_CONDITION_TEXT) return alert("Incorrect password for delete!"); // simple password check
 
     const confirmDelete = confirm("Are you sure you want to delete this file?");
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`/api/delete-file?id=${id}`, {
+      const res = await fetch(`/api/delete-file?id=${selectedFileId}`, {
         method: 'DELETE',
       });
 
@@ -75,26 +81,35 @@ export default function Home() {
       }
 
       alert("File deleted successfully!");
-      fetchDownloads(); // refresh after delete
+      fetchDownloads();
     } catch (error) {
       console.error("Unexpected error:", error);
       alert("Something went wrong while deleting the file.");
     }
   };
 
-
-
-  // Fetch all uploaded downloads
-  useEffect(() => {
-    fetchDownloads();
-  }, []);
-
+  // Open modal with the dynamic handler
+  const openModalWithHandler = (handler, fileId = null) => {
+    setActionHandler(() => handler); // set function dynamically
+    setSelectedFileId(fileId);       // store file id for delete
+    setModalOpen(true);
+  };
 
   return (
-    <div
-      style={{ marginLeft: "5px" }}
-    >
+    <div style={{ marginLeft: "5px" }}>
+      {/* Modal */}
+      {modalOpen && (
+        <ConditionInputWindow
+          onClose={() => setModalOpen(false)}
+          onAction={(password) => {
+            actionHandler(password);
+            setModalOpen(false);
+          }}
+        />
+      )}
+
       <h1>Upload and Download</h1>
+
       <div style={{ display: "flex", flexDirection: "column", width: "90vw" }}>
         <label>
           File Title : &nbsp;
@@ -105,7 +120,7 @@ export default function Home() {
             onChange={(e) => setTitle(e.target.value)}
             style={{ color: "gray" }}
           />
-          <p>(avoid &#47;, &#63;, &#58; in file name and don&apos;t use whitespace in the end)</p>
+          <p>(avoid &#47;, &#63;, &#58; in file name and don&apos;t use whitespace at the end)</p>
         </label>
         <br />
         <label>
@@ -113,7 +128,7 @@ export default function Home() {
           <input type="file" accept=".zip, .png, .mp4, .pdf, .jpg, .jpeg" onChange={(e) => setFile(e.target.files?.[0])} />
         </label>
         <br />
-        <button onClick={handleUpload} disabled={uploading} style={{ border: "1px solid gray" }}>
+        <button onClick={() => openModalWithHandler(handleUpload)}>
           {uploading ? "Uploading..." : "Upload"}
         </button>
       </div>
@@ -127,11 +142,13 @@ export default function Home() {
             <li key={index} style={{ listStyle: "none", marginBottom: "5px" }}>
               <h3>Title: {download.title}</h3>
               <div>
-                <a target="_blank" style={{ padding: "1px 4px", color: "var(--foreground-secondary" }} href={download.url} download>⇓ Download⇓</a>
-                <button onClick={() => handleDelete(download._id)} style={{ marginLeft: "10px", padding: "1px 4px", color: "var(--foreground-secondary" }}>
+                <a target="_blank" style={{ padding: "1px 4px", color: "var(--foreground-secondary)" }} href={download.url} download>⇓ Download⇓</a>
+                <button
+                  onClick={() => openModalWithHandler(handleDelete, download._id)} // open modal for delete
+                  style={{ marginLeft: "10px", padding: "1px 4px", color: "var(--foreground-secondary)" }}
+                >
                   Del
                 </button>
-
               </div>
             </li>
           ))}
